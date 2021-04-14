@@ -1,0 +1,441 @@
+\documentclass[a4paper,8pt]{extarticle}
+\usepackage[utf8]{inputenc}
+
+\usepackage{fancyhdr}
+
+\usepackage[pdftex]{graphicx} % Required for including pictures
+\usepackage[pdftex,linkcolor=black,pdfborder={0 0 0}]{hyperref} % Format links for pdf
+\usepackage{calc} % To reset the counter in the document after title page
+\usepackage{enumitem} % Includes lists
+
+\usepackage{textcomp}
+\usepackage{eurosym}
+
+\usepackage{ dsfont } % font za množice
+% tabele
+\usepackage{array}
+\usepackage{wrapfig}
+
+\usepackage{tikz,forest}
+\usetikzlibrary{arrows.meta}
+
+\frenchspacing % No double spacing between sentences
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.3em}
+
+\usepackage{mathtools}
+\usepackage{blkarray, bigstrut} %
+
+
+\usepackage{amssymb,amsmath,amsthm,amsfonts}
+\usepackage{multicol,multirow}
+\usepackage{calc}
+\usepackage{ifthen}
+\usepackage{tabularx}
+\usepackage[landscape]{geometry}
+%\usepackage[colorlinks=true,citecolor=blue,linkcolor=blue]{hyperref}
+%\usepackage{accents}
+
+\newcommand{\vect}[1]{\accentset{\rightharpoonup}{#1}}
+
+\ifthenelse{\lengthtest { \paperwidth = 11in}}
+    { \geometry{top=.5in,left=.5in,right=.5in,bottom=.5in} }
+	{\ifthenelse{ \lengthtest{ \paperwidth = 297mm}}
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+	}
+\pagestyle{empty}
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%x
+                                {\normalfont\large\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{0mm}%
+                                {-1explus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%
+                                {\normalfont\normalsize\bfseries}}
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {1ex plus .2ex}%
+                                {\normalfont\small\bfseries}}
+\makeatother
+\setcounter{secnumdepth}{0}
+%\setlength{\parindent}{0pt}
+%\setlength{\parskip}{0pt plus 0.5ex}
+% -----------------------------------------------------------------------
+
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\title{Računalniške komunikacije}
+
+\begin{document}
+
+\raggedright
+\footnotesize
+
+\begin{multicols}{4}
+\setlength{\premulticols}{1pt}
+\setlength{\postmulticols}{1pt}
+\setlength{\multicolsep}{1pt}
+\setlength{\columnsep}{2pt}
+
+\section{ISO-OSI medel}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{|C{3.5em}|R{6.5em}|L{6.5em}|C{2.5em}|}
+	\hline
+	\textit{Datagr.} & \textbf{ISO-OSI} & \textbf{TCP-IP} & \textit{prot.} \\ \hline
+	podatki & 	 aplikacijska & \multirow{3}{5em}{aplikacijska} & \multirow{3}{5em}{HTTP, DNS, POP3, SSH} \\ \cline{0-1}
+	podatki & 	 predstavitvena & &\\ \cline{0-1}
+	podatki & 	 sejna & & \\ \hline
+	segmenti & 	 prenosna & transportna & TCP, UDP\\ \hline
+	paketi & 	 omrežna & internetna & IP, ICMP\\ \hline
+	okvirji & 	 povezavna & \multirow{2}{5em}{povezovalna} & \multirow{2}{5em}{MAC,\\ PPP}\\ \cline{0-1}
+	biti & 	 	 fizična &  &\\ \hline
+\end{tabular}
+
+\section{Fizična plast}
+Naloge:
+\begin{itemize}
+	\item \textbf{kodiranje bitov} z neko fizikalno veličino (\emph{signalom}) za prenos po mediju (\emph{baker, optika, radijski, IR, ...})
+	\item \textbf{prenos posameznih bitov} v analogni ali digitalni obliki
+	\item \textbf{prenos celotnega signala} (zaporedja bitov po mediju)
+	\item \textbf{pretvorba signala} v obliko, ki je primerna za prenos po mediju
+\end{itemize}
+\subsection{Modulacija}
+\begin{itemize}
+\item \emph{amplitudna} (1: velika amplituda, 0: majhna ampituda)
+\item \emph{frekvenčna} (1: visoka frekvenca, 0: nizka frekvenca)
+\item \emph{fazna} (1: zakodiramo z fazo 0°, 0: z fazo 180°)
+\item \emph{kvadratna}
+	\begin{itemize}
+	\item kombinacija amplitudne in fazne modulacije
+	\item 4 fazni koti 0°, 90°, 180° 270°
+	\item 2 nivoja amplitude
+	\item 8 kombinacij faze in amplitude $\rightarrow$ 3 bite
+	\item lahko imamo tudi več faznih kotov in amplitud in naenkrat
+	zakodiramo do 6 bitov
+	\end{itemize}
+\end{itemize}
+
+\section{Povezavna plast}
+Lahko (ne pa njuno) opravlja naloge: okvirajanje datagramov, zaznavanje in odpravljanje napak, dostop do medija, zagotavljanje zanesljive dostave, kontrola pretoka.
+\subsection{Okvirjanje datagramov}
+Okvir je \emph{enota} na povezavni plasti. Določa začetek in konec prenesenih podatkov.
+
+\subsection{Zaznavanje in odpravljanje napak}
+dodamo bite za preverjanje pravilnosti (EDC - Error Detection Code)
+\begin{itemize}
+	\item \textbf{soda/liha pariteta} vseh 1 skupaj s pariteto je sodo/liho \emph{(omogoča le zaznavanje lihega števila napak)}
+	\item \textbf{dvo dimenzionalna pariteta} dodamo praitetni bit za vsako
+	vrstico in vsak stolpec + kumulativni/meta paritetni bit je
+	pariteta paritetnih bitiv \emph{(omogoča zaznavanje in odpravljanje enojnih napak in zaznavanje dvojnih napak)}
+	\item \textbf{Hammingova koda}\\
+	Paritetni biti $p$ imajo indekse $2^i$ in jih postavimo na mesta, ki jih določajo indeksi. Vmes vstavimo bite podatkov $d$.\\
+	Vsak paritetni bit $p_i$ pokriva $i$ bitov od svoje pozicije naprej, nato preskoči $i$ bitiov in tako naprej. \\
+	Število 1, ki jih paritetni bit pokriva mora biti sodo.
+	\begin{tabular}{c | *{7}{c}}
+			& $1.$ & $2.$ & $3.$ & $4.$ & $5.$ & $6.$ & $7.$ \\ \hline
+			& $p_1$ & $p_2$ & $d_1$ & $p_4$ & $d_2$ & $d_3$ & $d_4$ \\ \hline
+		$p_1$	&\checkmark& &\checkmark& &\checkmark& &\checkmark \\
+		$p_2$	& &\checkmark&\checkmark& & &\checkmark&\checkmark \\
+		$p_4$ 	& & & &\checkmark&\checkmark&\checkmark&\checkmark
+	\end{tabular}
+
+	Ko prejmomo sporočio, preverimo paritetne bite in definiramo:
+	\begin{align*}	
+		p_i' = \begin{cases}
+			1 & \text{paritetni bit $p_i$ napačen}\\
+			0 & \text{sicer}
+		\end{cases}
+	\end{align*}
+	Nato izračunamo sindrom:
+	\begin{align*}
+		 [ \dots p'_4\ p'_2\ p'_1 ]_{(2)} = \text{\# bita, ki ga je treba obrniti}
+	\end{align*} 
+	\item \textbf{Cyclic Redundancy Check - CRC} \emph{z $r$ paritetnimi biti lahko popravi do $r+1$ napak}
+	\item \textbf{Internet checksum} \emph{uporablja se na transportni plasti}
+\end{itemize}
+
+\subsection{Dostop do skupinskega medija}
+Imamo dve vrsti povezav: \textbf{dvotočkovna} (le en pošiljatel in prejemnik - PPP, DHLC) in \textbf{oddajna} (več vozlišč komunicira naenkrat - Ethernet, Wireless LAN).
+
+Kanal lahko delimo na več načinov:
+\subsubsection{Delitev kanala}
+Time Division Multiple Access TDMA, Frequency Devision Multiple Access FDMA \emph{Ni kolizij}
+\subsubsection{Sočasni/naključni dostop (kolizijski)}
+\begin{itemize}
+	\item \textbf{ALOHA} Če pride do kolizije, se paket po naključnem času ponovno pošlje.
+	\item \textbf{razsekana ALOHA} Čas je razsekan na časovne intervale. V vsakem intervalu se lahko pošlje en paket. Če pride do kolizije, se v nasldnjem intervalu pošlje ponovno z verjetnostjo $p$.
+	\item \textbf{Carier Sense Multiple Access - CSMA} Poslušaj ali že kdo oddaja preden začeneš oddajati sam.
+	\item \textbf{Carier Sense Multiple Accerss Collision Detection -  CSMA/CD} Če zaznaš kolizijo nehaj oddajati in pošlji motilni siganal.
+\end{itemize}
+
+\subsubsection{Izmenični dostop}
+\begin{itemize}
+	\item \textbf{Rezervacija s centralnim vozliščim (pooling)}: centralno vozlišče zaporedno dodeluje medij posameznim vozliščem (\emph{zakasnitev, ena točka odpovedi})
+	\item \textbf{Rezervacija z žetonom, ki kroži (token)} (\emph{zakasnitev, ena točka odpovedi - žeton})
+\end{itemize}
+
+\subsubsection{Dostop do brezžičnega medija}
+Protokol 802.11 (WiFi) za dostop do medija uporablja \textbf{Carier Sense Multiple Accerss Collision Avoidance - CSMA-CA}.
+
+Uporablja signala:
+\begin{itemize}
+	\item \textbf{Request To Send - RTS}
+	\item \textbf{Clear To Send - CTS}
+\end{itemize}
+Terminal, ki želi pošiljati najprej pošlje RTS in čaka na CTS.
+Ko terminal prejme CTS, ne bo oddajal toliko časa kot traja, da se prenese en paket.
+
+\subsection{Protokoli na povezavni plasti}
+\subsubsection{Ethernet}
+Okvir ethernet:
+
+\setlength\tabcolsep{1.5pt}
+\begin{tabular}{*{6}{| C{3.5em}} |}
+	\hline
+	\tiny{\textit{preambula}} & \tiny{\textit{ponorni nalosv}} & \tiny{\textit{izvorni naslov}} & \tiny{\textit{tip}} & \tiny{\textit{podatki}} & \tiny{\textit{CRC}} \\ 
+	\tiny{\texttt{8B}} & \tiny{\texttt{6B}} & \tiny{\texttt{6B}} & \tiny{\texttt{2B}} & \tiny{\texttt{1500B}} & \tiny{\texttt{4B}} \\ \hline 
+\end{tabular}
+
+Ethernet ponuja:
+\begin{itemize}
+	\item nepovezavna storitev
+	\item nezanesljiva storitev (\emph{kontrola pravilnosti se izvaja s CRC
+	a brez popravljanja, potrjevanje in ponovno pošiljanje se ne
+	uporabljata})
+	\item uporablja CSMA/CD (\emph{pri vsaki koliziji se čakanje eksponentno poveča $0-1,0-3,0-7,0-15,\dots$})
+\end{itemize}
+
+\subsubsection{Point to Point Protocol - PPP}
+Povezavni protokol; imamo le enega pošiljatelja in prejemnika.
+
+Okvir PPP:
+
+\setlength\tabcolsep{1.5pt}
+\begin{tabular}{*{7}{| C{3.2em}} |}
+	\hline
+	\tiny{\textit{zastavica za začetek}} & \tiny{\textit{address}} & \tiny{\textit{control}} & \tiny{\textit{protokol}} & \tiny{\textit{podatki}} & \tiny{\textit{CRC}} & \tiny{\textit{zastavica za konec}} \\ 
+	\tiny{\texttt{1B}} & \tiny{\texttt{1B}} & \tiny{\texttt{1B}} & \tiny{\texttt{1B/2B}} & \tiny{\texttt{$\leq$1500B}} & \tiny{\texttt{2B/4B}} & \tiny{\texttt{1B}} \\ \hline 
+\end{tabular}
+
+Poja ``address'' in ``control'' se ne uporabljata.
+
+Pred niz \texttt{01111110} (zastavica) urivamo \emph{ubežno kodo} \texttt{01111101}.
+
+\subsection{Naslavljanje naprav na povezavni plasti}
+Vsaka naprava ima fizični naslov (Media Access Control - MAC) iz 48 bitov.
+
+Naslov \texttt{FF-FF-FF-FF-FF-FF} je \textbf{brodcast} (prejemniki so vsi). 
+
+\subsubsection{Address Resolution Protocol - ARP}
+Vsaka naprava ima ARP tabelo [IP $\vert$ MAC $\vert$ TTL]
+
+Če naprava želi ugotoviti MAC druge naprave, pošlje \textbf{ARP poizvedbo} (\emph{Moj max je y, kdo ima IP x?}) na brodcast naslov. Naparava, ki ima ta IP odgovori z \textbf{ARP odgovorom} (\emph{Jaz imam IP x in oj MAC je z.}). Nato si obe napravi shranita MAC naslove v ARP tabelo.
+
+\subsection{Stikalo}
+Stikalo uporablja \textbf{stikalno tabelo} [MAC $\vert$ vrata $\vert$ TTL], da se odloči, na katera vrata poslati okvir. Ko prejme kak okvir, si zapomni lokacijo pošiljatelja in okvir:
+\begin{itemize}
+	\item \textbf{poplavi} na vsa vrata razen na tista iz katerih je prišel okvir (\emph{če ne ve, na katerih vratih je prejemnik})
+	\item \textbf{posreduje} na izbrana vrata (\emph{če ve, na katerih vratih je prejemnik})
+	\item \textbf{filtriria} / zavrže okvir (\emph{če je namenjen istim vratom iz katerih je prišel})
+\end{itemize}
+
+\section{Omrežna plast}
+\emph{Lahko} omogoča:
+\begin{enumerate}
+	\item zagotovljena dostava paketov
+	\item dostava v zagotovljenem času
+	\item dostava v pravem vrstnem redu
+	\item zagotovljena spodnja meja pasovne širine
+	\item največja dovoljena varianca zakasnitve (jitter)
+	\item varno komunikacijo (zaupnost integriteto podatkov, avtentikacijo)
+\end{enumerate}
+
+\subsection{Storitve interneta}
+\setlength\tabcolsep{1.5pt}
+\begin{tabular}{c C{4em} *{5}{|C{3.2em}}|}
+	& & \multicolumn{5}{c|}{\emph{zagotovljene storitve}} \\ \hline
+	\tiny{Omrežje} & \tiny{Model} & \tiny{pas. širina} & \tiny{brez izgub} & \tiny{vr. red} & \tiny{čas} & \tiny{obv. o zamaš.} \\ \hline
+	\emph{Internet} & best effort & $\times$ & $\times$ & $\times$ & $\times$ & $\times_{\text{izguba}}$ \\
+	\emph{ATM} & CBR \tiny{constant bit rate} & const & \checkmark & \checkmark & \checkmark & \tiny{ni zamaš.} \\
+	\emph{ATM} & ABR \tiny{available bit rate} & min & $\times$ & \checkmark & $\times$ & \checkmark \\
+\end{tabular}
+\subsection{Usmerjevalnik}
+Naprava, ki deluje na omrežni plasti in skrbi za transport datagrama po \emph{jedru omrežja}. Povezuje ralične medije in portokole.
+
+Funkcije usmerjevalnika:
+\begin{itemize}
+	\item \textbf{Posredovanje paketov}/forwarding: prenos na pravi izhodni vmesnik glede na destinacijo paketa in \textbf{posredovalno tabelo}.
+	\item \textbf{Usmerjanje}/routing: določanje poti paketov od izvora do cilja. Usmerjevalniki s poočjo usmerjevalnih protokolov najdejo najcenejšo pot.
+\end{itemize}
+
+\subsubsection{Povezavna omrežja / navidiezni vodi}
+Faze pri vzpostavitvi navideznega voda: \emph{vzpostavitev}, \emph{tok podatkov}, \emph{rušenje}
+
+Usmerjevalniki usmerjajo pakete glede na \emph{št. voda} v paketu in posredovalno tabelo [ vhodni vmesnik $\vert$ vhodna št. voda $\vert$ izhodni vmesnik $\vert$ izhodna št. voda].
+
+\subsubsection{Nepovezavna / datagramska omrežja}
+Ni faze vspostavljanja povezave. Paket lahko do cilja pride po različnih poteh.
+
+Usmerjevalniki usmerjajo glede na ciljni (IP) naslov in usmerjevalno tabelo [predpona naslova $\vert$ vmesnik]. 
+
+\subsection{Internet Protocol - IP}
+\subsection{Paket IPv4}
+Dolžina glave brez ``možnosti'' je 20B.
+
+\setlength\tabcolsep{1.5pt}
+\begin{tabular}{*{8}{|C{20pt}}|}
+	\hline
+	\texttt{4b} & \texttt{4b} & \texttt{4b} & \texttt{4b} & \texttt{4b} & \texttt{4b} & \texttt{4b} & \texttt{4b} \\ \hline
+	\tiny{\textit{Verzija}} & \tiny{\textit{Dolžina glave}} & \multicolumn{2}{c|}{\tiny{\textit{Tip storitve}}} & \multicolumn{4}{c|}{\tiny{\textit{Skupna dolžina}}} \\ \hline
+	\multicolumn{4}{|c|}{\tiny{\textit{Identifikacija}}} & \tiny{\textit{Zastav.}} & \multicolumn{3}{c|}{\tiny{\textit{Zamik fragmenta}}} \\ \hline
+	\multicolumn{2}{|c|}{\tiny{\textit{TTL}}} & \multicolumn{2}{c|}{\tiny{\textit{Protokol}}} & \multicolumn{4}{c|}{\tiny{\textit{Kontrolna vsota}}} \\ \hline
+	\multicolumn{8}{|c|}{\textit{Izvorni IP naslov} \texttt{32b}} \\ \hline
+	\multicolumn{8}{|c|}{\textit{Ponorni IP naslov} \texttt{32b}} \\ \hline
+	\multicolumn{6}{|c|}{\tiny{\textit{Možnosti}}} &  \multicolumn{2}{c|}{\tiny{\textit{Zpolnjevanje}}} \\ \hline
+	\multicolumn{8}{|c|}{\tiny{\textit{Podatki}}} \\ \hline
+\end{tabular}
+
+\subsubsection{Fragmentacija}
+IP datagram se mora enkapsulirati v omejene okvirje (MTU) povezavne plasti. Zato se IP paket razbije na več manjših.
+Da fragmente lahko sestavimo nazaj se uporabljajo polja v glavi:
+
+\begin{itemize}
+	\item \textbf{ID}: pri vseh fragmentih enak
+	\item \textbf{Zastavica MF}: 0, če je to zadnji fragment; 1, sicer
+	\item \textbf{Offset}: enota za odmik je 8 Byte
+\end{itemize}
+
+\columnbreak
+\subsubsection{Podomrežja}
+\begin{tabular}{|c|l|l|}
+	\hline
+	\textbf{Razred} & \textbf{Začetek naslova} & \textbf{Maska} \\ \hline
+	A &	\texttt{0 xxxxxxx} 	& \texttt{255.0.0.0} \\ \hline
+	B &	\texttt{10 xxxxxx} 	& \texttt{255.255.0.0} \\ \hline
+	C &	\texttt{110 xxxxx} 	& \texttt{255.255.255.0} \\ \hline
+	D &	\texttt{1110 xxxx} 	& \texttt{-} \\ \hline
+	E &	\texttt{11110 xxx} 	& \texttt{-} \\ \hline
+\end{tabular}
+
+\textbf{Posebni naslovi}
+\begin{itemize}
+	\item Privatni (24 bitni) \texttt{ 10.0.0.0/8}
+	\item Privatni (20 bitni)\texttt{ 172.16.0.0/12}
+	\item Privatni (16 bitni)\texttt{ 192.168.0.0/16}
+	\item Povratna zanka (localhost) \texttt{ 127.0.0.0/8}
+	\item Link-local \texttt{ 169.254.0.0/16}
+\end{itemize}
+
+\textbf{Posebni naslovi v lokalnem omrežju}
+\begin{itemize}
+	\item Naslov omrežja: \emph{1. naslov v omrežju (same ničle)}
+	\item Hosts: \emph{vsi naslovi vmes}
+	\item Brodcast: \emph{zadnji naslov v omrežju (same enke)}
+\end{itemize}
+
+\subsection{Dinaminčno dodeljevanje naslovov - DHCP}
+Ko se naprava priključi v omrežje, pošlje \textbf{DHCP discover}, DHCP strežnik(i) odgovori(jo) z \textbf{DHCP offer}, naprava izbere IP iz ponudbe in pošlje \textbf{DHCP request}, končno strežnik potrdi z \textbf{DHCP ACK}.
+
+\subsection{Internet Control Message Protocol - ICMP}
+Sporočilo je enkapsulirano v paketu IP. Uporablja se za sporočanje napake, nedosegljivosti, protokola, vrat, ...
+
+\textbf{Traceroute} pošlje vrsto paketov z TTL=1,2,3,... vsakič ko paketu poteče TTL router pošlje nazaj ICMP sporočilo.
+
+\subsection{Network Address Translation - NAT}
+Lokalne naslove slika v globalne in obratno.
+
+To doseže z NAT preslikovalno tabelo [globalni naslov, port $\vert$ zasebni naslov, port].
+
+Vsak zahtevek ima izvorni in ponorni port/vrata.
+
+\subsection{IPv6}
+Naslovi so razdeljeni (:) na 8 blokov po 16 bitov. Zaporedje blokov samih ničel lahko krajšamo z ``::'', 
+
+Dolžina glave je vedno 40B.
+\begin{tabular}{*{8}{|C{20pt}}|}
+	\hline
+	\texttt{4b} & \texttt{4b} & \texttt{4b} & \texttt{4b} & \texttt{4b} & \texttt{4b} & \texttt{4b} & \texttt{4b} \\ \hline
+	\tiny{\textit{Verzija}} & \multicolumn{2}{c|}{\tiny{\textit{Traffic class}}} & \multicolumn{5}{c|}{\tiny{\textit{Flow label}}} \\ \hline
+	\multicolumn{4}{|c|}{\tiny{\textit{Payload len}}} & \multicolumn{2}{c|}{\tiny{\textit{Next header}}} & \multicolumn{2}{c|}{\tiny{\textit{Hop limit}}} \\ \hline
+	\multicolumn{8}{|c|}{\textit{Izvorni IP naslov} \texttt{128b}} \\ \hline
+	\multicolumn{8}{|c|}{\textit{Ponorni IP naslov} \texttt{128b}} \\ \hline
+	\multicolumn{8}{|c|}{\tiny{\textit{Podatki}}} \\ \hline
+\end{tabular}
+Novo polje ``flow label'' (vrsta toka) za zagotavljanje kakovosti storitev za posebne tokove podatkov.
+
+\subsubsection{Prehodni mehanizmi}
+\begin{itemize}
+	\item \textbf{Dvojni slkad}: Vse naprave imajo IPv4 in IPv6. Če je na poti kakšno IPv4 vozlišče, se bo proromet vmes pretvarjal v IPv4.
+	\item \textbf{Tuneliranje}: Če je na poti kakpno IPv4 vozlišče se IPv6 paket enkapsulira v IPv4.
+\end{itemize}
+
+\subsection{Usmerjanje}
+Usmerjevalni algoritmi so lahko: 
+\begin{itemize}
+	\item \textbf{centralizirani} (\emph{imajo podatke o celem omrežju}) ali \textbf{decentralizirani} (\emph{imajo podatke le o sosednjih vozliščih}) \\
+	\item \textbf{prilagodljivi} (\emph{lahko prilagajajo cene povezav glede na zasičenost}) ali \textbf{naprilagodljivi}
+\end{itemize}
+
+\subsubsection{Decentralizirano usmerjanje}
+Vsako vozlišče pozna ceno povezave do svojih sosedov. Hrani \textbf{vektor razdalj}, \textbf{vektorje razdalj svojih sosedov} in \textbf{posredovalno tabelo} [cilj $\vert$ cena $\vert$ via sosed].
+
+Ko vozlišče prejme vkektor razdalj svojega soseda, izračuna nov vektor razdalj \emph{če lahko do nekega vozlišča pride ceneje prek nekega soseda, posodobi posredovalno tabelo}.
+
+Usmerjevalniki so povezani v \textbf{avtonomne sisteme - AS} v katerih uporabljajo isti \textbf{INTRA-AS} usmerjevalni protokol.
+\begin{itemize}
+	\item \textbf{Routing Information Protocol - RIP} usmerjanje z vekotrjem razdalj (na 30s, 180s+ $\rightarrow$ prekinjena povezava), cena je število skokov, max cena je 15M
+	\item \textbf{Open Shortest Path First - OSPF} obvestila se s poplavljanjem posredujejo po celem sistemu, vsak potem preračuna najkrajše poti
+	\item \textbf{Interior Gateway Routing Protocol - IGRP} Cisco-va izboljšava RIP; cena je odvisna od pasovne širine, zakasnitve, obremenitve, MTU in zanesljivosti.
+\end{itemize}
+
+Za povezovanje AS mad seboj se uporablja \textbf{INTER-AS} usmerjevalni protokol, ki pa morabiti enak v celem omrežju.
+\begin{itemize}
+	\item \textbf{Border Gateway Protocol - BGP} omogoča, da omrežja oglašujejo svojo prisotnost drugim omrežjem
+\end{itemize}
+\columnbreak
+\begin{center}
+	
+\begin{tabular}{|c|l|}
+	\hline
+	/1	& 128.0.0.0       \\ \hline
+	/2	& 192.0.0.0       \\ \hline
+	/3	& 224.0.0.0       \\ \hline
+	/4	& 240.0.0.0       \\ \hline
+	/5	& 248.0.0.0       \\ \hline
+	/6	& 252.0.0.0       \\ \hline
+	/7	& 254.0.0.0       \\ \hline
+	/8	& 255.0.0.0       \\ \hline
+	/9	& 255.128.0.0     \\ \hline
+	/10	& 255.192.0.0     \\ \hline
+	/11	& 255.224.0.0     \\ \hline
+	/12	& 255.240.0.0     \\ \hline
+	/13	& 255.248.0.0     \\ \hline
+	/14	& 255.252.0.0     \\ \hline
+	/15	& 255.254.0.0     \\ \hline
+	/16	& 255.255.0.0     \\ \hline
+	/17	& 255.255.128.0   \\ \hline
+	/18	& 255.255.192.0   \\ \hline
+	/19	& 255.255.224.0   \\ \hline
+	/20	& 255.255.240.0   \\ \hline
+	/21	& 255.255.248.0   \\ \hline
+	/22	& 255.255.252.0   \\ \hline
+	/23	& 255.255.254.0   \\ \hline
+	/24	& 255.255.255.0   \\ \hline
+	/25	& 255.255.255.128 \\ \hline
+	/26	& 255.255.255.192 \\ \hline
+	/27	& 255.255.255.224 \\ \hline
+	/28	& 255.255.255.240 \\ \hline
+	/29	& 255.255.255.248 \\ \hline
+	/30	& 255.255.255.252 \\ \hline
+	/31	& 255.255.255.254 \\ \hline
+	/32	& 255.255.255.255  \\ \hline
+\end{tabular}
+\end{center}
+
+\end{multicols}
+\end{document}
