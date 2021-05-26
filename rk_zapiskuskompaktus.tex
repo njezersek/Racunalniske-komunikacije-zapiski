@@ -1,6 +1,7 @@
 \documentclass[a4paper,8pt]{extarticle}
 \usepackage[utf8]{inputenc}
 
+
 \usepackage{fancyhdr}
 
 \usepackage[pdftex]{graphicx} % Required for including pictures
@@ -35,6 +36,7 @@
 \usepackage[landscape]{geometry}
 %\usepackage[colorlinks=true,citecolor=blue,linkcolor=blue]{hyperref}
 %\usepackage{accents}
+
 
 \newcommand{\vect}[1]{\accentset{\rightharpoonup}{#1}}
 
@@ -436,6 +438,146 @@ Za povezovanje AS mad seboj se uporablja \textbf{INTER-AS} usmerjevalni protokol
 	/32	& 255.255.255.255  \\ \hline
 \end{tabular}
 \end{center}
+
+
+\section*{Transportna plast}
+Naloge transportne plasti so:
+\begin{itemize}
+	\item povezovanje dveh oddaljenih \emph{procesov}
+	\item multipleksiranje/demultipleksiranje komunikacije med procesi
+	\item zanesljiv prenos podatkov
+	\item kontrola pretoka in zasičenja
+\end{itemize}
+
+\subsection{Vrata - port}
+FTP-data: 20, FTP-cmd: 21, SSH: 22, Telnet: 23, SMTP: 25, DNS: 53, HTTP: 80, POP3: 110, IMAP: 143, IRC: 194, HTTPS: 443
+
+\subsection{User Datagram Protocol: UDP}
+Nepovezavna storitev, nudi le best-effort: ni zagotavljanja vrstnega reda, ni nadzora zamašitev, ...
+
+Dolžina glave je le 8B.
+
+\begin{tabular}{*{2}{|C{80pt}}|}
+	\hline
+	\texttt{16b} & \texttt{16b} \\ \hline
+	\tiny{\textit{Izvorna vrata}} & \tiny{\textit{Ponorna vrata}} \\ \hline
+	\tiny{\textit{Dolžina (skupaj z glavo) v B}} & \tiny{\textit{Internetna kontrolna vsota}} \\ \hline
+\end{tabular}
+
+\subsubsection{Internetna kontrolna vsota}
+\emph{Pošiljatelj:} pošiljatelj sešteje 16 bitne besede in shrani eniški komplement = kontrolna vsota \\
+\emph{Prejemnik:} sešteje 16 bitne besede skupaj s kontrolno vsoto $\to$ dobiti mora same enice
+
+\subsection{Potrjevanje}
+\textbf{sprotno potrjevanje}: po vsakem pošiljanju počakaj na potrditev
+
+\textbf{tekoče pošiljanje:} večji razpon za številčenje paketov, shranjevanje paketov na obeh straneh
+\begin{itemize}
+	\item ponavljanje N potrjenih (\emph{go-back-N})
+	\begin{itemize}
+		\item pošiljatelj hrani okno največ dovoljenih nepotrjenih paketov
+		\item ACK($n$) potrdi vse pakete do vključno $n$
+		\item časovna kontrola za najstarejši paket, ko poteče pošlji vse nepotrjene pakete na novo
+	\end{itemize}
+	\item ponavljanje izbranih (\emph{selective repeat})
+	\begin{itemize}
+		\item prejemnik shranjuje sporočila in jih sortira pred dostavo
+		\item pošiljatel ponovno pošlje le tiste pakete za katere ni prejel potrdila
+		\item vsak paket ima svojo časovno kontrolo
+	\end{itemize}
+\end{itemize}
+
+\textbf{neposredno}: uporaba ACK in NCK
+\textbf{posredno}: samo ACK, namesto NCK se ponovi ACK zadnjega segmenta
+
+
+
+\subsection{Transfer Control Protocol: TCP}
+Povezavna storitev, full duplex, zanesljiv, kontrola pretoka, kontrola zasičenja, \emph{tekoče pošiljanje in neposredno potrjevanje}
+
+\begin{tabular}{*{32}{|C{1pt}}|}
+	\hline
+	\multicolumn{16}{|c|}{\tiny{\texttt{16b}}} & \multicolumn{16}{c|}{\tiny{\texttt{16b}}} \\ \hline
+	\multicolumn{16}{|c|}{\tiny{\textit{Izvorna vrata}}} & \multicolumn{16}{c|}{\tiny{\textit{Ponorna vrata}}} \\ \hline
+	\multicolumn{16}{|c|}{\tiny{\textit{Dolžina (skupaj z glavo) v B}}} & \multicolumn{16}{c|}{\tiny{\textit{Internetna kontrolna vsota}}} \\ \hline
+	\multicolumn{32}{|c|}{\tiny{\textit{zaporedna št. (B)}}} \\ \hline
+	\multicolumn{32}{|c|}{\tiny{\textit{št. potrditve (B)}}} \\ \hline
+	%\tiny{\textit{Kontrolna vsota}} & \tiny{\textit{sprejemno okno}} \\ \hline
+	\multicolumn{4}{|c|}{\tiny{\textit{Dolzina glave}}} & \multicolumn{3}{c|}{\tiny{\textit{0}}} & \multicolumn{9}{c|}{\tiny{\textit{zastavice}}} & \multicolumn{16}{c|}{\tiny{\textit{sprejemno okno}}} \\ \hline
+	\multicolumn{16}{|c|}{\tiny{\textit{Internetna kontrolna vsota}}} & \multicolumn{16}{c|}{\tiny{\textit{karalec urg. data}}} \\ \hline
+	\multicolumn{32}{|c|}{\tiny{\textit{opcije (spremenljiva dolžina)}}} \\ \hline
+\end{tabular}
+
+Dolžina glave (4b) je podana v številu 32-bitnih besede
+
+Sprejemno okno (16b) št. bajtov, ki jih sprejemnik lahko sprejme
+
+Zastavice (9b):
+\begin{itemize}
+	\item URG*: urgentni podatki
+	\item ACK: potrditev povezave
+	\item PSH: takoj predaj aplikaciji
+	\item RST, SYN, FIN: vzpostavljanje in rušenje povezave
+\end{itemize}
+
+\subsubsection{Vzpostavitev povezave - trojno rokovanje}
+\begin{enumerate}
+	\item Odjemalec pošlje segment z zastavico \texttt{SYN} (sporoči začetno številko segmenta, ni podatkov)
+	\item Strežnik vrne segment \texttt{SYN ACK} (rezervira medpomnilnik, odgovori z začetno številko svojega segmenta)
+	\item Odjemalec vrne \texttt{ACK}, lahko že s podatki ("štuporama")
+\end{enumerate}
+
+\subsubsection{Rušenje povezave}
+\begin{enumerate}
+	\item odjemalec pošlje segment  \texttt{TCP FIN} strežniku
+	\item strežnik potrdi z  \texttt{ACK}, zapre povezavo, pošlje  \texttt{FIN}
+	\item odjemalec prejme strežnikov  \texttt{FIN}, potrdi ga z  \texttt{ACK} (počaka časovni interval, da po potrebi ponovno pošlje  \texttt{ACK}, če se ta izgubi)
+	\item strežnik sprejme  \texttt{ACK}, končano
+\end{enumerate}
+
+\subsubsection{Nastavitev časovne kontrole}
+Na potrditev moramo čakati vsaj \texttt{RTT} (Round Trip Time).
+
+\begin{gather*}
+	\texttt{OcenjenRTT}[i] = (1-\alpha) \texttt{OcenjenRTT}[i-1] + \alpha  \texttt{IzmerjeniRTT}[i] \\
+	\texttt{DevRTT}[i] = (1-\beta) \texttt{DevRTT}[i-1] + \beta  \big| \texttt{IzmerjeniRTT}[i] - \texttt{OcenjenRTT}[i] \big| \\
+	\texttt{ČakalniInterval}[i] = \texttt{OcenjenRTT}[i] + 4  \texttt{DevRTT}[i]
+\end{gather*}
+
+\subsubsection{Način potrjevanja}
+TCP uporablja podobno strategijo kot \emph{ponavljanje N nepotrjenih}. Pošiljatelj ima časovno kontrolo le za najstarejši nepotrjen segment, vendar ob poteku časovne kontrole ne pošlje vseh segmentov v oknu, temveč le najstarejči nepotrjen segment.
+
+RFC2018 vpeljuje potrjevanje le izbranih paketov.
+
+\begin{tabularx}{\columnwidth}{|X|X|}
+	\hline
+	\emph{Dogodek pri prejemniku} & \emph{Odziv prejemnika} \\ \hline
+	Sprejem segmenta s pričakovano številko, vsi prejšnji že potrjeni. &
+	Počakaj na naslednji segment max 500 ms. Če ta pride v tem intervalu, izvedi zakasnjeno potrditev obeh (\emph{delayed ACK}). Če ne pride v tem intervalu, potrdi samo prejetega. \\ \hline
+	Isto kot zgoraj, a potrditev za prejšnji segment še ni bila poslana. &
+	Takoj pošlji \emph{kumulativno potrditev} za oba segmenta brez izvajanja zakasnjene potrditve. \\ \hline
+	Sprejem segmenta s previsoko številko (\emph{zaznamo vrzel}) &
+	Takoj potrdi zadnji še sprejeti segment (\emph{pošlji duplikat ACK}). \\ \hline
+	Sprejem segmenta z najnižjo	številko iz vrzeli (\emph{polnjenje vrzeli}) &
+	Takoj potrdi segment. \\ \hline
+\end{tabularx}
+
+\subsubsection{Hitro ponovno pošiljanje (fast retransmit)}
+Ponovno pošiljanje se običajno izvede po preteku časovne kontrole. Če pa pošiljatel prejme 3 potrditve za že potrjen paket, takoj izvede ponovno pošiljanje.
+
+\subsubsection{Kontrola pretoka}
+Usklajevanje hitrosti pošiljanja med pošiljateljem in prejemnikom.
+
+Prejemnik sporoča razpolžljiv prostor v pomnilniku v polju 'sprejemno okno':
+\begin{align*}
+	\texttt{rwnd} = \texttt{velikost} - [\texttt{lastByteRcvd} - \texttt{lastByteRead}]
+\end{align*}
+
+\subsection{Nadzor zasičenja}
+Določimo congestion window (\texttt{cwnd}).
+
+$\min(\texttt{rwnd}, \texttt{cwnd})$ določa št. največ nepotrjenih paketov preden moramo čakati.
+
 
 \end{multicols}
 \end{document}
