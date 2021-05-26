@@ -587,5 +587,59 @@ Na začetku: \texttt{cwnd} = 1\texttt{MSS}; faza počasnega začetka;\\ \texttt{
 
 TCP konvergira k pravični delitvi pasovne širine med uporabniki.
 
+\section{Aplikacijska plast}
+\subsection{HTTP}
+
+\subsubsection{Glava}
+\texttt{Metoda URL Verzija}\\
+\texttt{Ime polja 1: vrednost 1}\\
+\texttt{...}\\
+\texttt{Ime polja n: vrednost n}\\
+\textit{[prazna vrstica]}\\
+\texttt{TELO}
+
+\subsubsection{Metode}
+\begin{tabularx}{\columnwidth}{X X}
+	\hline
+	\texttt{GET} & zahteva objekta \\ \hline
+	\texttt{POST} & zahteva objekta + poslane vrednosti (obrazci) \\ \hline
+	\texttt{HEAD} & zahteva, na katero strežnik odgovori z odgovorom brez zahtevanega objekta (uporabno za razhroščevanje) \\ \hline
+	\texttt{PUT} & (HTTP 1.1) – nalaganje na strežnik (upload) \\ \hline
+	\texttt{DELETE} & (HTTP 1.1) – brisanje s strežnika \\ \hline
+	\texttt{TRACE} & razhroščevanje (echo-odmev zahtevka, podobno PING) \\ \hline
+	\texttt{CONNECT} & povezava preko medstrežnika \\ \hline
+	\texttt{OPTIONS} & povpraševanje o možnih opcijah pri zahtevku \\ \hline
+\end{tabularx}
+
+\subsubsection{Statusi}
+\begin{itemize}
+	\item \textbf{1xx: informativne kode}
+	\item \textbf{2xx: uspešno} \\
+		200: OK
+	\item \textbf{3xx: preusmeritev} \\
+		301: Moved Permanently – prestavljen dokument 
+	\item \textbf{4xx: napake pri odjemalcu} \\
+		400: Bad Request – sintaksa \\
+		404: Not Found – ni dokumenta
+	\item \textbf{5xx: napake na strežniku} \\
+		500: Internal Server Error \\
+		505: HTTP Version Not Supported
+\end{itemize}
+
+\subsubsection{Vrste HTTP povezav}
+\begin{enumerate}
+	\item \textbf{nevztrajne (nonpersistent)}: za vsak prenašani objekt (stran, sliko) se vzpostavi nova TCP	povezava
+	
+	2 RTT/objekt (rokovanje + prenos)
+	\item \textbf{vztrajne (persistent)}: strežnik uporabi isto povezavo za pošiljanje več objektov, strežnik pusti povezavo odprto
+	
+	1 RTT/objekt (prenos)
+	\item \textbf{vztrajne s cevovodom (persistent, pipelined)}: tekoče pošiljanje več zahtev naenkrat, brezčakanja na prejem prejšnjih
+\end{enumerate}
+
+\subsubsection{Medstrežnik}
+Pogojni zahtevek: \texttt{If-modified-since: <datum>}.
+
+Strežnik pošlje nov stran ali pa \texttt{HTTP/1.1 304 Not Modified}
 \end{multicols}
 \end{document}
